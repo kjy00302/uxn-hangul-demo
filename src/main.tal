@@ -1,0 +1,82 @@
+|00 @System &vector $2 &pad $6 &r $2 &g $2 &b $2
+|20 @Screen &vector $2 &width $2 &height $2 &auto $1 &pad $1 &x $2 &y $2 &addr $2 &pixel $1 &sprite $1
+
+|0100
+
+	#f05d .System/r DEO2 
+	#f0cd .System/g DEO2 
+	#f0ad .System/b DEO2
+
+	#0010 .Screen/x DEO2
+	#0010 .Screen/y DEO2
+	;text ;draw-text JSR2
+
+	#00a0 .Screen/x DEO2
+	#0050 .Screen/y DEO2
+	;sejong #2c1e #05 ;draw-icn JSR2
+
+BRK
+
+@draw-text ( char* -- )
+	.Screen/x DEI2 ,&anchor STR2
+
+	#15 .Screen/auto DEO
+	&while
+		LDA2k
+		;&end STH2
+		( check ascii )
+		OVR #00 EQU ,&ascii JCN
+		( 844 )
+			;draw-844-char JMP2
+		&ascii
+			NIP
+			( check newline )
+			DUP #0a NEQ ,&nonewline JCN
+			( newline )
+				POP 
+				LIT2 &anchor $2 .Screen/x DEO2
+				.Screen/y DEI2k #0010 ADD2 ROT DEO2
+				JMP2r
+			&nonewline
+			;draw-uf2-char JMP2
+		&end
+		INC2 INC2 LDA2k ORA ,&while JCN
+	POP2
+JMP2r
+
+@draw-uf2-char ( char -- )
+	#20 SUB #00 SWP
+		DUP2 #50 SFT2 ;font-uf2/glyphs ADD2 .Screen/addr DEO2
+		;font-uf2 ADD2 LDA #00 SWP .Screen/x DEI2 ADD2
+		#01 .Screen/sprite DEOk DEO
+		.Screen/x DEO2
+JMP2r
+
+
+@draw-icn ( addr* width height color -- )
+	#05 .Screen/auto DEO
+	STH 
+	( set bounds ) ,&height STR ,&width STR .Screen/addr DEO2
+	( set origin ) .Screen/x DEI2 ,&x STR2
+	LIT &height $1 #00
+	&ver
+		LIT2 &x $2 .Screen/x DEO2
+		LIT &width $1 #00
+		&hor
+			STHkr .Screen/sprite DEO
+			INC GTHk ,&hor JCN
+		POP2
+		.Screen/y DEI2k #0008 ADD2 ROT DEO2
+		INC GTHk ,&ver JCN
+	POP2
+	POPr
+	#00 .Screen/auto DEO
+
+JMP2r
+
+~src/844han.tal
+
+~assets-build/font-uf2.tal
+~assets-build/sejong.tal
+~assets-build/text.tal
+~assets-build/font-844.tal

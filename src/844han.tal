@@ -1,0 +1,72 @@
+
+@draw-844-char ( u16 -- )
+	( clear-buf )
+	#2000
+	&l
+		#00 OVR ;844-mem ADD2 #0000 SWP2 STA2
+		INC INC
+	NEQk ,&l JCN
+	POP2
+
+	( split jamo and store )
+	#ac00 SUB2 STH2k
+	#024c DIV2 INC2k ;844-mem/cho STA2
+	#024c MUL2 STH2kr SWP2 SUB2 #001c DIV2 INC2 ;844-mem/joong STA2
+	STH2kr #001c DIV2k MUL2 SUB2 ;844-mem/jong STA2
+	POP2r
+
+	( cho )
+	;844-mem/cho LDA2
+	;844-mem/joong LDA2
+	;844-mem/jong LDA2 #0000 EQU2 ,&not-has-jong1 JCN
+	#0016 ADD2
+	&not-has-jong1
+	;cho-tbl ADD2 LDA #00 SWP
+	#0014 MUL2 ADD2
+	;char-to-buf JSR2
+
+	( joong )
+	;844-mem/joong LDA2
+	;844-mem/cho LDA2 ;joong-tbl ADD2 LDA #00 SWP
+	;844-mem/jong LDA2 #0000 EQU2 ,&not-has-jong2 JCN
+	INC2 INC2
+	&not-has-jong2
+	#0016 MUL2 #00a0 ADD2 ADD2
+	;char-to-buf JSR2
+
+	( jong )
+	;844-mem/jong LDA2
+	;844-mem/joong LDA2 ;jong-tbl ADD2 LDA #00 SWP #001c MUL2
+	#00f8 ADD2 ADD2
+	;char-to-buf JSR2
+
+	( print-buf )
+	;844-mem .Screen/addr DEO2
+	#01 .Screen/sprite DEOk DEO
+	
+JMP2r
+
+@char-to-buf ( addr -- )
+	#50 SFT2 ;font-844 ADD2
+	STH2
+	#0000
+	&l
+		DUP2
+		STH2kr ADD2 LDA2 OVR2 ;844-mem ADD2 LDA2k ROT2 ORA2 SWP2 STA2
+		INC2 INC2
+	DUP #20 NEQ ,&l JCN
+	POP2 POP2r
+JMP2r
+
+@844-mem
+	$20 &cho $2 &joong $2 &jong $2
+
+@cho-tbl
+	00 00 00 00 00 00 00 00 00 01 03 03 03 01 02 04 04 04 02 01 03 00
+	00 05 05 05 05 05 05 05 05 06 07 07 07 06 06 07 07 07 06 06 07 05
+
+@joong-tbl
+	00 00 01 01 01 01 01 01 01 01 01 01 01 01 01 01 00 01 01 01
+
+@jong-tbl
+	00 00 02 00 02 01 02 01 02 03 00 02 01 03 03 01 02 01 03 03 01 01
