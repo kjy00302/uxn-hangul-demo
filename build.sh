@@ -9,7 +9,7 @@ mv font-uf2.tal assets-build/.
 ./utils/textencoder.py assets/text.txt text
 mv text.tal assets-build/.
 
-./utils/talconv.py assets/sejong2cx1e.icn sejong
+./utils/talconv.py assets/sejong1ex1e.icn sejong
 mv sejong.tal assets-build/.
 
 uxnasm src/main.tal demo.rom

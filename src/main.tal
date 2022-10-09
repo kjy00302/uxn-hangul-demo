@@ -11,9 +11,9 @@
 	#0010 .Screen/y DEO2
 	;text ;draw-text JSR2
 
-	#00a0 .Screen/x DEO2
+	#0110 .Screen/x DEO2
 	#0050 .Screen/y DEO2
-	;sejong #2c1e #05 ;draw-icn JSR2
+	;sejong #1e1e #05 ;draw-icn JSR2
 
 BRK
 
